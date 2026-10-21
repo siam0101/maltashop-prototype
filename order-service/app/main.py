@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.db import Order, SessionLocal, init_db
+from app.events import publish_event
 from app.logging_config import correlation_id_var, get_logger
 
 logger = get_logger()
@@ -20,7 +21,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="MaltaShop Order Service", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="MaltaShop Order Service", version="0.3.0", lifespan=lifespan)
 
 
 @app.middleware("http")
@@ -108,6 +109,25 @@ def place_order(
         "Order created",
         extra={"fields": {"order_id": order.id, "total_amount": float(order.total_amount)}},
     )
+
+    try:
+        publish_event(
+            event_type="OrderPlaced",
+            routing_key="order.placed",
+            data={
+                "order_id": order.id,
+                "customer_id": order.customer_id,
+                "product_id": order.product_id,
+                "quantity": order.quantity,
+                "total_amount": float(order.total_amount),
+            },
+        )
+    except Exception:
+        logger.exception(
+            "Failed to publish OrderPlaced event",
+            extra={"fields": {"order_id": order.id}},
+        )
+
     return to_out(order)
 
 
