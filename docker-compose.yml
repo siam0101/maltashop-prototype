@@ -41,5 +41,21 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  notification-service:
+    build: ./notification-service
+    environment:
+      SERVICE_NAME: notification-service
+      NOTIFICATION_DB_PATH: ${NOTIFICATION_DB_PATH}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      LOG_LEVEL: ${LOG_LEVEL}
+    volumes:
+      - notification-data:/data
+    ports:
+      - "8001:8000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
 volumes:
   order-db-data:
+  notification-data:
