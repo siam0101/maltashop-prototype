@@ -1,0 +1,27 @@
+{
+  "event_type": "OrderPlaced",
+  "routing_key": "order.placed",
+  "producer": "order-service",
+  "consumers": ["notification-service"],
+  "envelope_fields": ["event_id", "event_type", "occurred_at", "correlation_id", "data"],
+  "data_fields": {
+    "order_id": "str",
+    "customer_id": "str",
+    "product_id": "str",
+    "quantity": "int",
+    "total_amount": "float"
+  },
+  "example": {
+    "event_id": "11111111-2222-3333-4444-555555555555",
+    "event_type": "OrderPlaced",
+    "occurred_at": "2026-10-21T18:43:25+00:00",
+    "correlation_id": "contract-test-correlation-id",
+    "data": {
+      "order_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "customer_id": "cust-1001",
+      "product_id": "prod-55",
+      "quantity": 2,
+      "total_amount": 99.98
+    }
+  }
+}
